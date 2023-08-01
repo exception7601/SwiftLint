@@ -54,20 +54,26 @@ extension SwiftLintPlugin: XcodeBuildToolPlugin {
     let inputFilePaths = target.inputFiles
       .filter { $0.type == .source && $0.path.extension == "swift" }
       .map(\.path.string)
+
     let swiftLint = try context.tool(named: "swiftlint")
-    let pathConfig = "\(packageDirectory().path)/.swiftlint.yml"
+    let packageDirectory = context.xcodeProject.directory
+
+    var arguments = [
+      "lint",
+      "--quiet",
+      "--force-exclude",
+      "--cache-path", "\(context.pluginWorkDirectory)",
+    ] + inputFilePaths
+
+    if let configuration = packageDirectory.firstConfigurationFileInParentDirectories() {
+      arguments.append(contentsOf: ["--config", "\(configuration.string)"])
+    }
 
     return [
       .prebuildCommand(
         displayName: "SwiftLint",
         executable: swiftLint.path,
-        arguments: [
-          "lint",
-          "--quiet",
-          "--force-exclude",
-          "--cache-path", "\(context.pluginWorkDirectory)",
-          "--config", pathConfig
-        ] + inputFilePaths,
+        arguments: arguments,
         outputFilesDirectory: context.pluginWorkDirectory.appending("Output")
       )
     ]
