@@ -20,7 +20,7 @@ opt_in_rules:
   - toggle_bool
   - operator_usage_whitespace
   - nslocalizedstring_key
-  - no_grouping_extension
+# - no_grouping_extension
 # - number_separator
 # - missing_docs
   - multiline_arguments
@@ -29,7 +29,7 @@ opt_in_rules:
 # - multiline_literal_brackets
   - multiline_parameters
   - multiline_parameters_brackets
-  - legacy_objc_type
+# - legacy_objc_type
   - identical_operands
   - function_default_parameter_at_end
   - force_unwrapping
