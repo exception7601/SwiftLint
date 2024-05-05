@@ -1,42 +1,51 @@
-//
-//  File.swift
-//
-//
-//  Created by anderson on 18/07/23.
-//
-
 import Foundation
 import PackagePlugin
-import Darwin
 
 extension Path {
-  /// Scans the receiver, then all of its parents looking for a configuration file with the name ".swiftlint.yml".
-  /// - returns: Path to the configuration file, or nil if one cannot be found.
-  func firstConfigurationFileInParentDirectories() -> Path? {
-    let defaultConfigurationFileName = ".swiftlint.yml"
-    let proposedDirectory = sequence(
-      first: self,
-      next: { path in
-        guard path.stem.count > 1 else {
-          // Check we're not at the root of this filesystem, as `removingLastComponent()`
-          // will continually return the root from itself.
-          return nil
-        }
-        return path.removingLastComponent()
+  var directoryContainsConfigFile: Bool {
+    FileManager.default.fileExists(atPath: "\(self)/.swiftlint.yml")
+  }
+
+  var depth: Int {
+    URL(fileURLWithPath: "\(self)").pathComponents.count
+  }
+
+  func isDescendant(of path: Path) -> Bool {
+    "\(self)".hasPrefix("\(path)")
+  }
+
+  func resolveWorkingDirectory(in directory: Path) throws -> Path {
+    guard "\(self)".hasPrefix("\(directory)") else {
+      throw SwiftLintBuildToolPluginError.pathNotInDirectory(path: self, directory: directory)
+    }
+
+    let path: Path? = sequence(first: self) { path in
+      let path: Path = path.removingLastComponent()
+      guard "\(path)".hasPrefix("\(directory)") else {
+        return nil
       }
-    ).first { path in
-      let potentialConfigurationFile = path.appending(subpath: defaultConfigurationFileName)
-      return potentialConfigurationFile.isAccessible()
+      return path
     }
-    return proposedDirectory?.appending(subpath: defaultConfigurationFileName)
-  }
+      .reversed()
+      .first(where: \.directoryContainsConfigFile)
 
-  /// Safe way to check if the file is accessible from within the current process sandbox.
-  private func isAccessible() -> Bool {
-    let result = string.withCString { pointer in
-      access(pointer, R_OK)
+    return path ?? directory
+  }
+}
+
+enum SwiftLintBuildToolPluginError: Error, CustomStringConvertible {
+    case pathNotInDirectory(path: Path, directory: Path)
+    case swiftFilesNotInProjectDirectory(Path)
+    case swiftFilesNotInWorkingDirectory(Path)
+
+    var description: String {
+        switch self {
+        case let .pathNotInDirectory(path, directory):
+            "Path '\(path)' is not in directory '\(directory)'."
+        case let .swiftFilesNotInProjectDirectory(directory):
+            "Swift files are not in project directory '\(directory)'."
+        case let .swiftFilesNotInWorkingDirectory(directory):
+            "Swift files are not in working directory '\(directory)'."
+        }
     }
-
-    return result == 0
-  }
 }
