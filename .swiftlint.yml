@@ -54,6 +54,7 @@ opt_in_rules:
   - redundant_set_access_control
   - lower_acl_than_parent
   - explicit_acl
+  - explicit_type_interface
 
 #included:
 #excluded:
@@ -107,3 +108,8 @@ nesting:
     - 4
     - 5
   function_level: 2
+
+explicit_type_interface:
+  severity: warning
+  allow_redundancy: true
+
