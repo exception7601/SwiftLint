@@ -1,4 +1,4 @@
-# set -e
+set -e
 
 BUILD=$(date +%s)
 REPO=realm/SwiftLint
