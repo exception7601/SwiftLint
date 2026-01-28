@@ -72,7 +72,7 @@ END
 echo "$PACKAGE" >Package.swift
 git add Package.swift
 git commit -m "new Version ${VERSION}"
-git tag -s -a "v${VERSION}" -m "v${VERSION}"
+git tag -a "v${VERSION}" -m "v${VERSION}"
 git push origin HEAD --tags
 
 # git push origin HEAD
