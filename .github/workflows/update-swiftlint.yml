@@ -1,0 +1,30 @@
+name: Update SwiftLint Dependency
+
+on:
+  # Automatic weekly updates (Mondays at 00:00 UTC)
+  schedule:
+    - cron: '0 0 * * 1'  # Every Monday at 00:00 UTC
+  
+  # Manual trigger for testing
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0  # Needed for tag checking
+      
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+      
+      - name: Make update script executable and run
+        run: |
+          chmod +x update.sh
+          ./update.sh
