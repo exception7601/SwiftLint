@@ -1,11 +1,8 @@
 name: Update SwiftLint Dependency
 
 on:
-  # Automatic weekly updates (Mondays at 00:00 UTC)
   schedule:
     - cron: '0 0 * * 1'  # Every Monday at 00:00 UTC
-  
-  # Manual trigger for testing
   workflow_dispatch:
 
 jobs:
@@ -25,6 +22,8 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
       
       - name: Make update script executable and run
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
         run: |
           chmod +x update.sh
           ./update.sh
