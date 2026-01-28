@@ -18,6 +18,8 @@ jobs:
       
       - name: Configure Git
         run: |
+          git config --global commit.gpgsign false
+          git config --global tag.gpgsign false
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
       
